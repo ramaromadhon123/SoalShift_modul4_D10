@@ -145,7 +145,7 @@ void gabung(char* nama_vid)
 
 	struct dirent *dp;
 	DIR *dir = opendir(dirpath);
-	folder_dest = open (path_dest, O_CREAT |O_APPEND | O_RDWR, 0777);
+	folder_dest = open (path_dest, O_CREAT | O_APPEND | O_RDWR, 0777);
 
 	while ((dp = readdir(dir)) != NULL)
 	{
