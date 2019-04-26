@@ -9,8 +9,46 @@ Enkripsi yang Atta inginkan sangat sederhana, yaitu Caesar cipher. Namun, Kusuma
 Misalkan ada file bernama **“halo”** di dalam folder **“INI_FOLDER”**, dan key yang dipakai adalah 17, maka:</br>
 **“INI_FOLDER/halo"** saat belum di-mount maka akan bernama **“n,nsbZ]wio/QBE#”**, saat telah di-mount maka akan otomatis terdekripsi kembali menjadi **“INI_FOLDER/halo”**.</br>
 _Perhatian: Karakter ‘/’ adalah karakter ilegal dalam penamaan file atau folder dalam *NIX, maka dari itu dapat diabaikan_</br>
-
+### Penjelasan soal:</br>
+soal ini meminta kita untuk mengenkripsi nama file dan folder yang ada pada file system. Enkripsi menggunakan Caesar cipher dengan aturan yang telah ditentukan pada soal dan berdasarkan key yang ditentukan. dekripsi akan dilakukan ketika telah di-mount. karakter '/' akan diabaikan.</br>
 ### Solusi:</br>
+untuk fungsi enkripsi kita akan mencari character yang terdapat pada list Caesar cipher dan mengganti character tersebut dengan character ke 17 setelah character tersebut pada list Caesar cipher list, jika melebihi indeks maka dimulai dari indeks ke 0 lagi. dan ketika menemui '/' maka characternnya tetap dengan cara :</br>
+```
+char key[100] = {"qE1~ YMUR2\"`hNIdPzi\%^t@(Ao:=CQ,nx4S[7mHFye#aT6+v)DfKL$r?bkOGB>}!9_wV']jcp5JZ&Xl|\\8s;g<{3.u*W-0"};
+//enkripsi no1
+void enkripsi(char *path){
+	int pnjng = strlen(path), i, j;
+
+	for(i=0; i<pnjng; i++){
+		if(path[i] == '/'){
+			continue;
+		}
+		for(j=0; j<94; j++){
+			if(path[i] == key[j]){
+				path[i] = key[(j + 17)%94];
+				break;
+			}
+		}
+	}
+}
+```
+untuk fungsi dekripsi kita akan mencari character yang terdapat pada list Caesar cipher dan mengganti character tersebut dengan character ke 17 sebelum character tersebut pada list Caesar cipher list, jika melebihi indeks maka dimulai dari indeks ke 93 lagi. ketika menemui '/' maka characternnya tetap dengan cara :</br>
+```
+void dekripsi(char *path){
+	int pnjng = strlen(path), i, j;
+	for(i=0; i<pnjng; i++){
+		if(path[i] == '/'){
+			continue;
+		}
+		for(j=0; j<94; j++){
+			if(path[i] == key[j]){
+				path[i] = key[(94+(j - 17))%94];
+				break;
+			}
+		}
+	}
+}
+```
 
 
 ## Soal 2</br>
