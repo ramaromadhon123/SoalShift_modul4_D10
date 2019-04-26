@@ -47,6 +47,7 @@ void dekripsi(char *path){
 
 static int xmp_getattr(const char *path, struct stat *stbuf)
 {
+	if(strcmp(path,"..")==0 || strcmp(path,".")==0) return 0;
   int res;
 	enkripsi(path);
 	char fpath[1000];
@@ -62,6 +63,7 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
 static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		       off_t offset, struct fuse_file_info *fi)
 {
+	if(strcmp(path,"..")==0 || strcmp(path,".")==0) return 0;
   char fpath[1000];
 	enkripsi(path);
 	if(strcmp(path,"/") == 0)
@@ -99,6 +101,7 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
 		    struct fuse_file_info *fi)
 {
+	if(strcmp(path,"..")==0 || strcmp(path,".")==0) return 0;
   char fpath[1000];
 	if(strcmp(path,"/") == 0)
 	{
