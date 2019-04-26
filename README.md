@@ -84,7 +84,93 @@ Jika ditemukan file dengan spesifikasi tersebut ketika membuka direktori, Atta a
 ## Soal 4 </br>
 Pada folder **YOUTUBER**, setiap membuat folder permission foldernya akan otomatis menjadi 750. Juga ketika membuat file permissionnya akan otomatis menjadi 640 dan ekstensi filenya akan bertambah **“.iz1”**. File berekstensi **“.iz1”** tidak bisa diubah permissionnya dan memunculkan error bertuliskan “File ekstensi iz1 tidak boleh diubah permissionnya.”</br>
 
+### penjelasan soal:</br>
+pada folder YOUTUBE kita diminta untuk mengubah otomatis permission folder menjadi 750 ketika membuat folder dan mengubah otomatis permission file menjadi 640 ketika membuat file dan menambahkan ekstensi **“.iz1”**. dan  File berekstensi **“.iz1”** tidak bisa diubah permissionnya dan memunculkan error bertuliskan “File ekstensi iz1 tidak boleh diubah permissionnya.”</br>
+
 ### Solusi:</br>
+untuk mengubah otomatis folder permision menjadi 750 maka kita memanfaatkan variable parameter pada fungsi xmp_mkdir yaitu path dan mode nya, dimana modenya kita ganti dengan 750 dengan cara : </br>
+```
+static int xmp_mkdir(const char *path, mode_t mode)
+{
+	int res;
+	enkripsi(path);
+	char fpath[1000];
+	sprintf(fpath,"%s%s",dirpath,path);
+	//printf("%s\n", fpath);
+	if(strstr(fpath, "YOUTUBER/") != NULL){
+		res = creat(fpath, 0640);	
+	}else{
+		res = creat(fpath, mode);
+	}
+	//res = mkdir(fpath, 0750);
+	if (res == -1)
+		return -errno;
+
+	return 0;
+}
+```
+sedangkan untuk mengubah file permission menjadi 640 sama dengan cara diatas memanfaatkan variable parameter pada fungsi xmp_create, dimana modenya kita ganti 640 dan menambahkan ekstensi .iz1 dengan cara : </br>
+```
+static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi) {
+
+    (void) fi;
+	
+	char fpath[1000], tmpath[100];
+	sprintf(tmpath,"%s.iz1",path);
+	enkripsi(tmpath);
+	sprintf(fpath,"%s%s",dirpath,tmpath);
+	char newpath[1000];
+	strcpy(newpath, fpath);
+
+    int res;
+	//strcat(newpath,".iz1");
+	if(strstr(newpath, "YOUTUBER/") != NULL){
+		res = creat(newpath, 0640);	
+	}else{
+		res = creat(newpath, mode);
+	}
+	
+    
+    if(res == -1)
+	return -errno;
+
+    close(res);
+
+    return 0;
+}
+```
+dan agar ketika mengubah permission file berekstensi .iz1 menampilkan error dan tidak bisa mengubah file ekstensinya maka kita akan memanafaatkan fungsi xmp_chmod dengan cara mengecek apakah pathnya berekstensi .iz1 dengan caraa:
+```
+static int xmp_chmod(const char *path, mode_t mode)
+{
+	int res;
+	
+	char cek[4] = {".iz1"};
+	char fpath[1000];
+	sprintf(fpath,"%s%s",dirpath,path);	
+	
+	if(strstr(fpath, "YOUTUBER/") != NULL){
+		if(strstr(fpath, cek) != NULL){
+			pid_t child_id;
+			child_id = fork();
+			if(child_id == 0){
+				char pesan[100] = {"File ekstensi iz1 tidak boleh diubah permissionnya."};
+				char *argvnot[] = {"zenity", "--notification", "--text", pesan, NULL};
+				execv("/usr/bin/zenity", argvnot);
+			}else{
+				return 0;
+			}
+			return 0; 
+		}
+	}	
+
+	res = chmod(fpath, mode);
+	if (res == -1)
+		return -errno;
+
+	return 0;
+}
+```
 
 
 ## Soal 5 <br>
