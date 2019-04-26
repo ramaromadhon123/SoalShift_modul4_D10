@@ -13,7 +13,7 @@ _Perhatian: Karakter ‘/’ adalah karakter ilegal dalam penamaan file atau fol
 soal ini meminta kita untuk mengenkripsi nama file dan folder yang ada pada file system. Enkripsi menggunakan Caesar cipher dengan aturan yang telah ditentukan pada soal dan berdasarkan key yang ditentukan. dekripsi akan dilakukan ketika telah di-mount. karakter '/' akan diabaikan.</br>
 ### Solusi:</br>
 untuk fungsi enkripsi kita akan mencari character yang terdapat pada list Caesar cipher dan mengganti character tersebut dengan character ke 17 setelah character tersebut pada list Caesar cipher list, jika melebihi indeks maka dimulai dari indeks ke 0 lagi. dan ketika menemui '/' maka characternnya tetap dengan cara :</br>
-```
+```c
 char key[100] = {"qE1~ YMUR2\"`hNIdPzi\%^t@(Ao:=CQ,nx4S[7mHFye#aT6+v)DfKL$r?bkOGB>}!9_wV']jcp5JZ&Xl|\\8s;g<{3.u*W-0"};
 //enkripsi no1
 void enkripsi(char *path){
@@ -33,7 +33,7 @@ void enkripsi(char *path){
 }
 ```
 untuk fungsi dekripsi kita akan mencari character yang terdapat pada list Caesar cipher dan mengganti character tersebut dengan character ke 17 sebelum character tersebut pada list Caesar cipher list, jika melebihi indeks maka dimulai dari indeks ke 93 lagi. ketika menemui '/' maka characternnya tetap dengan cara :</br>
-```
+```c
 void dekripsi(char *path){
 	int pnjng = strlen(path), i, j;
 	for(i=0; i<pnjng; i++){
@@ -68,6 +68,104 @@ Untuk mempermudah kalian, dipastikan hanya video file saja yang terpecah menjadi
      - Hapus folder “Videos” </br>
 
 ### Solusi:</br>
+- Fungsi untuk melakukan pengecekan:
+```c
+void* check(void* args)
+{
+	char path[1000];
+	sprintf(path, "%s/Videos", dirpath);
+
+	while(flag)
+	{
+		struct dirent *dp;
+		DIR *dir = opendir(dirpath);
+
+		while ((dp = readdir(dir)) != NULL)
+		{
+			char *temp;
+			struct stat buf;
+
+			if ((temp = strstr(dp->d_name, ".001")) != NULL)
+			{
+				char currentvid[100], othervid[1000];
+
+				sprintf (currentvid, "%s", dp->d_name);
+				currentvid[strlen(dp->d_name) - 4] = '\0';
+
+				sprintf (othervid, "%s/%s", path, currentvid);
+				sleep(3);
+
+				if ((stat (othervid, &buf) == 0));
+
+				else gabung(currentvid);
+			}
+		}
+
+		closedir(dir);
+	}
+
+	return (void*) 0;
+}
+```
+
+- Fungsi untuk melakukan penggabungan file:
+```c
+void gabung(char* nama_vid)
+{
+	int folder, folder_dest, i = 1;
+	char path_vid[1000], path_dest[1000];
+
+	sprintf(path_vid, "%s/Videos/", dirpath);
+	sprintf(path_dest, "%s%s", path_vid, nama_vid);
+
+	struct dirent *dp;
+	DIR *dir = opendir(dirpath);
+	folder_dest = open (path_dest, O_CREAT | O_APPEND | O_RDWR, 0777);
+
+	while ((dp = readdir(dir)) != NULL)
+	{
+		char *temp;
+		if ((temp = strstr(dp->d_name, nama_vid)) != NULL)
+		{
+			char currentvid[100];
+			sprintf (currentvid, "%s/%s.%03d", dirpath, nama_vid, i);
+
+			folder = open(currentvid, O_RDWR);
+			write(folder_dest, buf, read(folder, buf, sizeof(buf)));
+
+			i++;
+		}
+	}
+
+	close(folder_dest);
+}
+```
+
+- Fungsi untuk menghapus file:
+```c
+void hapus()
+{
+	flag = 0;
+	struct dirent *dp;
+
+	char path[1000];
+	sprintf(path, "%s/Videos", dirpath);
+
+	DIR *dir = opendir(path);
+
+	while ((dp = readdir(dir)) != NULL)
+	{
+		if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0))
+		{
+			char currentvid[1000];
+			sprintf(currentvid, "%s/%s", path, dp->d_name);
+
+			remove(currentvid);
+		}
+	}
+	closedir(dir);
+}
+```
 
 
 ## Soal 3 </br>
@@ -89,7 +187,7 @@ pada folder YOUTUBE kita diminta untuk mengubah otomatis permission folder menja
 
 ### Solusi:</br>
 untuk mengubah otomatis folder permision menjadi 750 maka kita memanfaatkan variable parameter pada fungsi xmp_mkdir yaitu path dan mode nya, dimana modenya kita ganti dengan 750 dengan cara : </br>
-```
+```c
 static int xmp_mkdir(const char *path, mode_t mode)
 {
 	int res;
@@ -110,7 +208,7 @@ static int xmp_mkdir(const char *path, mode_t mode)
 }
 ```
 sedangkan untuk mengubah file permission menjadi 640 sama dengan cara diatas memanfaatkan variable parameter pada fungsi xmp_create, dimana modenya kita ganti 640 dan menambahkan ekstensi .iz1 dengan cara : </br>
-```
+```c
 static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi) {
 
     (void) fi;
@@ -140,7 +238,7 @@ static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi) 
 }
 ```
 dan agar ketika mengubah permission file berekstensi .iz1 menampilkan error dan tidak bisa mengubah file ekstensinya maka kita akan memanafaatkan fungsi xmp_chmod dengan cara mengecek apakah pathnya berekstensi .iz1 dengan caraa:
-```
+```c
 static int xmp_chmod(const char *path, mode_t mode)
 {
 	int res;
